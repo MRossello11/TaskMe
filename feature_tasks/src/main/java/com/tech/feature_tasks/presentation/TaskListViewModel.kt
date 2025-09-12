@@ -67,4 +67,15 @@ class TaskListViewModel @Inject constructor(
 
         taskRepository.updateTask(task)
     }
+
+    fun onTaskDelete(task: Task) = viewModelScope.launch(Dispatchers.IO) {
+        _uiState.update { currentState ->
+            val updatedTasks = currentState.taskList.filterNot {
+                it.id == task.id
+            }
+            currentState.copy(taskList = updatedTasks)
+        }
+
+        taskRepository.deleteTask(task.id)
+    }
 }

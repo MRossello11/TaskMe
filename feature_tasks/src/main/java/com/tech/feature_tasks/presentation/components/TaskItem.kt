@@ -16,7 +16,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun TaskComponent(
+fun TaskItem(
     title: String,
     completed: Boolean,
     onCheckedChange: (Boolean) -> Unit

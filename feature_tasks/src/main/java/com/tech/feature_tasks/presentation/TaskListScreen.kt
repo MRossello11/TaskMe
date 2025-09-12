@@ -21,7 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.tech.feature_tasks.presentation.components.TaskComponent
+import com.tech.feature_tasks.presentation.components.TaskItemSwipeable
 
 @Composable
 fun TaskListScreen(viewModel: TaskListViewModel = hiltViewModel()) {
@@ -70,11 +70,14 @@ fun TaskListScreen(viewModel: TaskListViewModel = hiltViewModel()) {
         // Task List
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(items = uiState.taskList, key = { it.id }) { task ->
-                TaskComponent(
+                TaskItemSwipeable(
                     title = task.title,
                     completed = task.completed,
                     onCheckedChange = { checked ->
                         viewModel.onTaskCompletedChanged(task)
+                    },
+                    onDelete = {
+                        viewModel.onTaskDelete(task)
                     }
                 )
             }
