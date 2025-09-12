@@ -6,11 +6,17 @@ import com.tech.feature_tasks.domain.model.Task
 import com.tech.feature_tasks.domain.repository.TaskRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+sealed interface TaskListEvent {
+    object VoiceRecognitionError: TaskListEvent
+}
 
 @HiltViewModel
 class TaskListViewModel @Inject constructor(
@@ -19,6 +25,9 @@ class TaskListViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(TaskListState())
     val uiState = _uiState.asStateFlow()
+
+    private val _events = MutableSharedFlow<TaskListEvent>()
+    val events: SharedFlow<TaskListEvent> = _events
 
     init {
         getTasks()
@@ -77,5 +86,23 @@ class TaskListViewModel @Inject constructor(
         }
 
         taskRepository.deleteTask(task.id)
+    }
+
+    fun onVoiceRecognitionFinished(text: String?, success: Boolean) {
+        if (success && text != null) {
+            _uiState.update { currentState ->
+                currentState.copy(
+                    input = text
+                )
+            }
+        } else {
+            sendEvent(TaskListEvent.VoiceRecognitionError)
+        }
+    }
+
+    private fun sendEvent(event: TaskListEvent) {
+        viewModelScope.launch {
+            _events.emit(event)
+        }
     }
 }

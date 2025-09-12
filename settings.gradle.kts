@@ -23,3 +23,4 @@ rootProject.name = "TaskMe"
 include(":app")
 include(":feature_tasks")
 include(":data")
+include(":core")
