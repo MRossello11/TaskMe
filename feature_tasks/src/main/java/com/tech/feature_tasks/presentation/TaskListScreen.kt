@@ -2,10 +2,8 @@ package com.tech.feature_tasks.presentation
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -23,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.tech.feature_tasks.presentation.components.TaskComponent
 
 @Composable
 fun TaskListScreen(viewModel: TaskListViewModel = hiltViewModel()) {
@@ -70,14 +69,14 @@ fun TaskListScreen(viewModel: TaskListViewModel = hiltViewModel()) {
 
         // Task List
         LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(uiState.taskList) { task ->
-                Text(
-                    text = task.title,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
+            items(items = uiState.taskList, key = { it.id }) { task ->
+                TaskComponent(
+                    title = task.title,
+                    completed = task.completed,
+                    onCheckedChange = { checked ->
+                        viewModel.onTaskCompletedChanged(task)
+                    }
                 )
-                Spacer(Modifier.height(5.dp))
             }
         }
     }

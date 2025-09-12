@@ -7,7 +7,6 @@ import com.tech.feature_tasks.domain.repository.TaskRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -19,7 +18,7 @@ class TaskListViewModel @Inject constructor(
 ): ViewModel() {
 
     private val _uiState = MutableStateFlow(TaskListState())
-    val uiState: StateFlow<TaskListState> = _uiState.asStateFlow()
+    val uiState = _uiState.asStateFlow()
 
     init {
         getTasks()
@@ -56,5 +55,16 @@ class TaskListViewModel @Inject constructor(
                 input = newInput
             )
         }
+    }
+
+    fun onTaskCompletedChanged(task: Task) = viewModelScope.launch(Dispatchers.IO) {
+        _uiState.update { currentState ->
+            val updatedTasks = currentState.taskList.map {
+                if (it.id == task.id) it.copy(completed = !it.completed) else it
+            }
+            currentState.copy(taskList = updatedTasks)
+        }
+
+        taskRepository.updateTask(task)
     }
 }
