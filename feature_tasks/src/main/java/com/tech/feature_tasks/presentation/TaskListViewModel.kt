@@ -65,7 +65,7 @@ class TaskListViewModel @Inject constructor(
             currentState.copy(taskList = updatedTasks)
         }
 
-        taskRepository.updateTask(task)
+        taskRepository.updateTask(task.copy(completed = !task.completed))
     }
 
     fun onTaskDelete(task: Task) = viewModelScope.launch(Dispatchers.IO) {
