@@ -1,3 +1,14 @@
+import java.util.Properties
+
+val localProperties = Properties().apply {
+    val localPropsFile = rootProject.file("local.properties")
+    if (localPropsFile.exists()) {
+        load(localPropsFile.inputStream())
+    }
+}
+
+val baseUrl: String = localProperties.getProperty("BASE_URL")
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
@@ -25,12 +36,21 @@ android {
             )
         }
     }
+
+    defaultConfig {
+        buildConfigField("String", "BASE_URL", "\"$baseUrl\"")
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions {
         jvmTarget = "11"
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 }
 
@@ -51,6 +71,11 @@ dependencies {
     // Hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
+
+    // retrofit
+    implementation(libs.squareup.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.okhttp3.logging.interceptor)
 
     // project
     implementation(project(":feature_tasks"))

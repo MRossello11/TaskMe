@@ -38,6 +38,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -68,6 +69,11 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
+
+    // retrofit
+    implementation(libs.squareup.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.okhttp3.logging.interceptor)
 
     // project
     implementation(project(":feature_tasks"))
