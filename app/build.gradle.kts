@@ -78,5 +78,6 @@ dependencies {
     // project
     implementation(project(":feature_tasks"))
     implementation(project(":data"))
+    implementation(project(":core"))
 
 }
