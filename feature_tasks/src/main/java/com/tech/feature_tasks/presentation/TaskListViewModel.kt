@@ -43,6 +43,8 @@ class TaskListViewModel @Inject constructor(
     }
 
     fun createTask() = viewModelScope.launch(Dispatchers.IO) {
+        if (_uiState.value.input.isBlank()) return@launch
+
         taskRepository.createTask(
             Task(
                 title = _uiState.value.input
