@@ -9,9 +9,8 @@ import com.tech.feature_tasks.domain.repository.TaskRepository
 class TaskRepositoryImplementation(
     private val taskEntityDao: TaskEntityDao
 ): TaskRepository {
-    override suspend fun createTask(task: Task): Task {
-        val id = taskEntityDao.updateTask(task.toEntity())
-        return task.copy(id = id)
+    override suspend fun createTask(task: Task) {
+        taskEntityDao.updateTask(task.toEntity())
     }
 
     override suspend fun getTasks(): List<Task> {
@@ -20,7 +19,7 @@ class TaskRepositoryImplementation(
         }
     }
 
-    override suspend fun deleteTask(id: Long) {
+    override suspend fun deleteTask(id: String) {
         taskEntityDao.deleteTask(id)
     }
 

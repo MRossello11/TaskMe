@@ -20,5 +20,5 @@ interface TaskRetrofitDataSource {
     suspend fun updateTask(@Body task: Task): Int
 
     @DELETE("/tasks/{id}")
-    suspend fun deleteTask(@Path("id") id: Long): Int
+    suspend fun deleteTask(@Path("id") id: String): Int
 }

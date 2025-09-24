@@ -7,12 +7,10 @@ import com.tech.feature_tasks.domain.repository.TaskRepository
 class TaskRetrofitRepositoryImplementation(
     private val apiService: TaskRetrofitDataSource
 ): TaskRepository {
-    override suspend fun createTask(task: Task): Task {
+    override suspend fun createTask(task: Task) {
         val errorCode = apiService.createTask(task)
 
-        if (errorCode == 0) {
-            return task
-        } else {
+        if (errorCode != 0) {
             throw Exception()
         }
     }
@@ -21,7 +19,7 @@ class TaskRetrofitRepositoryImplementation(
         return apiService.getAllTasks()
     }
 
-    override suspend fun deleteTask(id: Long) {
+    override suspend fun deleteTask(id: String) {
         apiService.deleteTask(id)
     }
 

@@ -10,8 +10,8 @@ import com.tech.feature_tasks.domain.model.Task
 
 @Entity
 data class TaskEntity(
-    @PrimaryKey(autoGenerate = true)
-    val id: Long = 0,
+    @PrimaryKey(autoGenerate = false)
+    val id: String,
     val title: String,
     val createdAt: Long = System.currentTimeMillis(),
     val completed: Boolean = false
@@ -30,8 +30,8 @@ interface TaskEntityDao {
     suspend fun getTasks(): List<TaskEntity>
 
     @Insert(onConflict = REPLACE)
-    suspend fun updateTask(task: TaskEntity): Long
+    suspend fun updateTask(task: TaskEntity)
 
     @Query("DELETE FROM TaskEntity WHERE id = :id")
-    suspend fun deleteTask(id: Long)
+    suspend fun deleteTask(id: String)
 }

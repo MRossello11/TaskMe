@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.UUID
 import javax.inject.Inject
 
 sealed interface TaskListEvent {
@@ -47,6 +48,7 @@ class TaskListViewModel @Inject constructor(
 
         taskRepository.createTask(
             Task(
+                id = UUID.randomUUID().toString(),
                 title = _uiState.value.input
             )
         )
