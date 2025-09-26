@@ -79,4 +79,6 @@ dependencies {
 
     // project
     implementation(project(":feature_tasks"))
+    implementation(project(":core"))
+    implementation(project(":feature_sync_changes"))
 }

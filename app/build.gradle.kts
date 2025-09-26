@@ -79,5 +79,5 @@ dependencies {
     implementation(project(":feature_tasks"))
     implementation(project(":data"))
     implementation(project(":core"))
-
+    implementation(project(":feature_sync_changes"))
 }

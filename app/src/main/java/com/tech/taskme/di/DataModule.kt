@@ -6,10 +6,16 @@ import com.tech.core.di.RetrofitTasks
 import com.tech.core.di.RoomTasks
 import com.tech.data.BuildConfig
 import com.tech.data.core.TaskMeDatabase
+import com.tech.data.feature_sync_changes.entities.ChangeEntityDao
+import com.tech.data.feature_sync_changes.entities.SyncEntityDao
+import com.tech.data.feature_sync_changes.repository.ChangeRoomRepositoryImplementation
+import com.tech.data.feature_sync_changes.repository.SyncRoomRepositoryImplementation
 import com.tech.data.feature_tasks.data_source.TaskRetrofitDataSource
 import com.tech.data.feature_tasks.entities.TaskEntityDao
 import com.tech.data.feature_tasks.repository.TaskRepositoryImplementation
 import com.tech.data.feature_tasks.repository.TaskRetrofitRepositoryImplementation
+import com.tech.feature_sync_changes.domain.repository.ChangeRepository
+import com.tech.feature_sync_changes.domain.repository.SyncRepository
 import com.tech.feature_tasks.domain.repository.TaskRepository
 import dagger.Module
 import dagger.Provides
@@ -37,7 +43,7 @@ object DataModule {
     }
 
     @Provides
-    fun provideUserDao(database: TaskMeDatabase): TaskEntityDao {
+    fun provideTaskDao(database: TaskMeDatabase): TaskEntityDao {
         return database.taskEntityDao()
     }
 
@@ -67,5 +73,25 @@ object DataModule {
     @RetrofitTasks
     fun provideTaskRetrofitRepositoryImplementation(taskRetrofitDataSource: TaskRetrofitDataSource): TaskRepository {
         return TaskRetrofitRepositoryImplementation(taskRetrofitDataSource)
+    }
+
+    @Provides
+    fun provideChangeDao(database: TaskMeDatabase): ChangeEntityDao {
+        return database.changeEntityDao()
+    }
+
+    @Provides
+    fun provideSyncDao(database: TaskMeDatabase): SyncEntityDao {
+        return database.syncEntityDao()
+    }
+
+    @Provides
+    fun provideChangeRoomRepository(changeEntityDao: ChangeEntityDao): ChangeRepository {
+        return ChangeRoomRepositoryImplementation(changeEntityDao)
+    }
+
+    @Provides
+    fun providesSyncRoomRepository(syncEntityDao: SyncEntityDao): SyncRepository {
+        return SyncRoomRepositoryImplementation(syncEntityDao)
     }
 }

@@ -3,7 +3,11 @@ package com.tech.feature_tasks.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tech.feature_tasks.domain.model.Task
-import com.tech.feature_tasks.domain.repository.TaskRepository
+import com.tech.feature_tasks.domain.use_cases.CreateTaskUseCase
+import com.tech.feature_tasks.domain.use_cases.DeleteTaskUseCase
+import com.tech.feature_tasks.domain.use_cases.GetTasksUseCase
+import com.tech.feature_tasks.domain.use_cases.SyncTasksUseCase
+import com.tech.feature_tasks.domain.use_cases.UpdateTaskUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -12,7 +16,6 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.util.UUID
 import javax.inject.Inject
 
 sealed interface TaskListEvent {
@@ -21,7 +24,11 @@ sealed interface TaskListEvent {
 
 @HiltViewModel
 class TaskListViewModel @Inject constructor(
-    private val taskRepository: TaskRepository
+    private val getTasksUseCase: GetTasksUseCase,
+    private val createTaskUseCase: CreateTaskUseCase,
+    private val deleteTaskUseCase: DeleteTaskUseCase,
+    private val updateTaskUseCase: UpdateTaskUseCase,
+    syncTasksUseCase: SyncTasksUseCase
 ): ViewModel() {
 
     private val _uiState = MutableStateFlow(TaskListState())
@@ -31,14 +38,16 @@ class TaskListViewModel @Inject constructor(
     val events: SharedFlow<TaskListEvent> = _events
 
     init {
-        getTasks()
+        viewModelScope.launch(Dispatchers.IO) {
+            syncTasksUseCase()
+            getTasks()
+        }
     }
 
     private fun getTasks() = viewModelScope.launch(Dispatchers.IO) {
-        val tasks = taskRepository.getTasks()
         _uiState.update { currentState ->
             currentState.copy(
-                taskList = tasks
+                taskList = getTasksUseCase()
             )
         }
     }
@@ -46,20 +55,19 @@ class TaskListViewModel @Inject constructor(
     fun createTask() = viewModelScope.launch(Dispatchers.IO) {
         if (_uiState.value.input.isBlank()) return@launch
 
-        taskRepository.createTask(
-            Task(
-                id = UUID.randomUUID().toString(),
-                title = _uiState.value.input
-            )
-        )
+        val task = createTaskUseCase(_uiState.value.input)
+
+        val newTaskList = arrayListOf<Task>()
+        newTaskList.addAll(_uiState.value.taskList)
+        newTaskList.add(task)
 
         // reset input
         _uiState.update { currentState ->
             currentState.copy(
-                input = ""
+                input = "",
+                taskList = newTaskList
             )
         }
-        getTasks()
     }
 
     fun onTaskTextChanged(newInput: String) {
@@ -78,7 +86,7 @@ class TaskListViewModel @Inject constructor(
             currentState.copy(taskList = updatedTasks)
         }
 
-        taskRepository.updateTask(task.copy(completed = !task.completed))
+        updateTaskUseCase(task.copy(completed = !task.completed))
     }
 
     fun onTaskDelete(task: Task) = viewModelScope.launch(Dispatchers.IO) {
@@ -89,7 +97,7 @@ class TaskListViewModel @Inject constructor(
             currentState.copy(taskList = updatedTasks)
         }
 
-        taskRepository.deleteTask(task.id)
+        deleteTaskUseCase(task)
     }
 
     fun onVoiceRecognitionFinished(text: String?, success: Boolean) {

@@ -14,7 +14,8 @@ data class TaskEntity(
     val id: String,
     val title: String,
     val createdAt: Long = System.currentTimeMillis(),
-    val completed: Boolean = false
+    val completed: Boolean = false,
+    val deleted: Boolean = false
 )
 
 fun TaskEntity.toDomain() = Task(
