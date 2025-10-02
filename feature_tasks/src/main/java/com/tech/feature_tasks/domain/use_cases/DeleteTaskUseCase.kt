@@ -13,7 +13,7 @@ class DeleteTaskUseCase @Inject constructor(
     private val flagDeleteTaskUseCase: FlagDeleteTaskUseCase,
     private val clearChangesUseCase: ClearChangesUseCase
 ) {
-    suspend operator fun invoke(task: Task) {
+    suspend operator fun invoke(task: Task): Int {
         val errorCode = remoteTaskRepository.deleteTask(task.id)
 
         // if task was successfully deleted remotely, it can be safely deleted locally too
@@ -23,5 +23,6 @@ class DeleteTaskUseCase @Inject constructor(
         } else {
             flagDeleteTaskUseCase(task)
         }
+        return errorCode
     }
 }
