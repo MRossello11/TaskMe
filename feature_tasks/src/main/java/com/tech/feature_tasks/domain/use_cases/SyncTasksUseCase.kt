@@ -12,6 +12,7 @@ import javax.inject.Inject
 class SyncTasksUseCase @Inject constructor(
     @param:RoomTasks private val localTaskRepository: TaskRepository,
     @param:RetrofitTasks private val remoteTaskRepository: TaskRepository,
+    private val deleteTaskUseCase: DeleteTaskUseCase,
     private val changeRepository: ChangeRepository,
     private val syncRepository: SyncRepository
 ) {
@@ -20,36 +21,29 @@ class SyncTasksUseCase @Inject constructor(
 
         val changes = changeRepository.getChanges()
 
-        // sync deletions
-        // delete remote tasks that are only locally flagged as deleted
-        val localDeletedTasks = localTasks.filter { it.deleted }
-        for (task in localDeletedTasks) {
-            remoteTaskRepository.deleteTask(task.id)
+        for (change in changes) {
+            val task = localTasks.find { it.id == change.objectId }
 
-            val change = changes.find { it.objectId == task.id }
-            if (change != null) {
+            // change has no task assigned, delete change
+            if (task == null) {
                 changeRepository.deleteChange(change.id)
+                continue
             }
-        }
 
-        // sync updates
-        val localUpdatedTasks = localTasks.filter { task -> changes.find { change -> change.type == ChangeType.UPDATE && change.objectId == task.id } != null }
-        for (task in localUpdatedTasks) {
-            remoteTaskRepository.updateTask(task)
-
-            val change = changes.find { it.objectId == task.id }
-            if (change != null) {
-                changeRepository.deleteChange(change.id)
+            // apply the corresponding change
+            val errorCode = when(change.type) {
+                ChangeType.CREATE -> {
+                    remoteTaskRepository.createTask(task)
+                }
+                ChangeType.UPDATE -> {
+                    remoteTaskRepository.updateTask(task)
+                }
+                ChangeType.DELETE -> {
+                    deleteTaskUseCase(task)
+                }
             }
-        }
 
-        // sync creations
-        val localCreatedTasks = localTasks.filter { task -> changes.find { change -> change.type == ChangeType.CREATE && change.objectId == task.id } != null }
-        for (task in localCreatedTasks) {
-            remoteTaskRepository.createTask(task)
-
-            val change = changes.find { it.objectId == task.id }
-            if (change != null) {
+            if (errorCode == 0) {
                 changeRepository.deleteChange(change.id)
             }
         }
