@@ -8,18 +8,34 @@ class TaskRetrofitRepositoryImplementation(
     private val apiService: TaskRetrofitDataSource
 ): TaskRepository {
     override suspend fun createTask(task: Task): Int {
-        return apiService.createTask(task)
+        return try {
+            apiService.createTask(task)
+        } catch (_: Exception) {
+            -1
+        }
     }
 
     override suspend fun getTasks(): List<Task> {
-        return apiService.getAllTasks()
+        return try {
+            apiService.getAllTasks()
+        } catch (_: Exception) {
+            emptyList()
+        }
     }
 
     override suspend fun deleteTask(id: String): Int {
-        return apiService.deleteTask(id)
+        return try {
+            apiService.deleteTask(id)
+        } catch (_: Exception) {
+            -1
+        }
     }
 
     override suspend fun updateTask(task: Task): Int {
-        return apiService.updateTask(task)
+        return try{
+            apiService.updateTask(task)
+        } catch (_: Exception) {
+            -1
+        }
     }
 }
